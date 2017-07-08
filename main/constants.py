@@ -23,10 +23,11 @@ NUM_2_CHARACTER = {
 }
 
 PROJECT_PATH = str(Path(__file__).parents[1])
-DATA_PATH = os.path.join(PROJECT_PATH, 'data')
-FIGURE_PATH = os.path.join(PROJECT_PATH, 'figures')
-MODEL_PATH = os.path.join(PROJECT_PATH, 'models')
-for path in [DATA_PATH, FIGURE_PATH, MODEL_PATH]:
+VAR_PATH = os.path.join(PROJECT_PATH, 'var')
+DATA_PATH = os.path.join(VAR_PATH, 'data')
+FIGURE_PATH = os.path.join(VAR_PATH, 'figures')
+MODEL_PATH = os.path.join(VAR_PATH, 'models')
+for path in [VAR_PATH, DATA_PATH, FIGURE_PATH, MODEL_PATH]:
     if not os.path.exists(path):
         os.makedirs(path)
 

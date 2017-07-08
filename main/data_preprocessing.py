@@ -9,8 +9,20 @@ from sklearn.preprocessing import LabelBinarizer
 
 from main.constants import NUM_2_CHARACTER, DATA_PATH
 
-DataSet = namedtuple('DataSet', ['x_train', 'x_test', 'y_train', 'y_test', 'labels_train', 'labels_test', 'n_classes',
-                              'image_shape'])
+DataSet = namedtuple('DataSet', [
+    'x_train',
+    'x_test',
+    'y_train',
+    'y_test',
+    'labels_num_train',
+    'labels_num_test',
+    'labels_char_train',
+    'labels_char_test',
+    'n_classes',
+    'image_shape',
+    'id',
+    'label_binarizer'
+])
 LOGGER = logging.getLogger(__name__)
 
 
@@ -21,6 +33,7 @@ def create_data(
         test_size=0.2,
         image_shape=(64, 64),
         seed=0,
+        data_id='some_data_id',
 ):
     logging.basicConfig(
         level=logging.INFO,
@@ -50,26 +63,44 @@ def create_data(
         LOGGER.info('Could only create {} classes instead of {}'.format(n_created_classes, n_classes))
 
     x = np.stack(image_list, axis=0)
-    y = LabelBinarizer().fit_transform(character_num_list).astype('float32')
-    args = list(train_test_split(x, y, character_list, test_size=test_size, random_state=seed)) + [n_classes,
-                                                                                                   image_shape]
+
+    label_binarizer = LabelBinarizer()
+
+    y = label_binarizer.fit_transform(character_num_list).astype('float32')
+
+    args = list(train_test_split(x, y, character_num_list, character_list, test_size=test_size, random_state=seed)) + \
+           [n_created_classes, image_shape, data_id, label_binarizer]
     return DataSet(*args)
 
 
+def load_data(data_id='small', data_path=DATA_PATH):
+    """Load data
+
+    Args:
+        data_id (str): data id
+        data_path (os.path.Path):
+
+    Returns:
+        DataSet
+    """
+    with open(os.path.join(data_path, '{}_data.pkl'.format(data_id)), 'rb') as f:
+        data = pickle.load(f)
+    return data
+
 if __name__ == '__main__':
     # save small data
-    data = create_data(n_classes=3, n_samples_per_class=20, test_size=0.4, seed=1, image_shape=(32, 32))
+    data = create_data(n_classes=3, n_samples_per_class=20, test_size=0.4, seed=1, image_shape=(32, 32), data_id='small')
     with open(os.path.join(DATA_PATH, 'small_data.pkl'), "wb") as handle:
         pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    # save medium data
-    data = create_data(n_classes=10, n_samples_per_class=200, test_size=0.2)
-    with open(os.path.join(DATA_PATH, 'medium_data.pkl'), "wb") as handle:
-        pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
-    # save big data
-    data = create_data(n_classes=18, n_samples_per_class=1000, test_size=0.2)
-    with open(os.path.join(DATA_PATH, 'big_data.pkl'), "wb") as handle:
-        pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # # save medium data
+    # data = create_data(n_classes=10, n_samples_per_class=200, test_size=0.2, data_id='medium')
+    # with open(os.path.join(DATA_PATH, 'medium_data.pkl'), "wb") as handle:
+    #     pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    #
+    # # save big data
+    # data = create_data(n_classes=18, n_samples_per_class=1000, test_size=0.2, data_id='big')
+    # with open(os.path.join(DATA_PATH, 'big_data.pkl'), "wb") as handle:
+    #     pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 

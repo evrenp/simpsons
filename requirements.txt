@@ -9,5 +9,5 @@ scipy
 seaborn
 tensorflow
 yaml
-ipython
+ipython==4.2.0
 notebook
