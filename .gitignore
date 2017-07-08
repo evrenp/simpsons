@@ -99,3 +99,11 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# ignore data, models and figures
+data
+models
+figures
+
+# pycharm files
+.idea
