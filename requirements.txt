@@ -1,3 +1,4 @@
+pytest
 hdf5
 keras
 matplotlib
@@ -11,3 +12,4 @@ tensorflow
 yaml
 ipython==4.2.0
 notebook
+click

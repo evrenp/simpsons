@@ -1,29 +1,13 @@
-import numpy as np
-import cv2
 import os
-import gc
-import matplotlib.pyplot as plt
 import pickle
-import h5py
-import glob
-import time
 import logging
-from random import shuffle
-from collections import Counter
 from keras import backend
-from sklearn.model_selection import train_test_split
-
-import keras
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import LearningRateScheduler, ModelCheckpoint
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-from keras.optimizers import SGD, Adam
 
 from main.constants import MODEL_PATH
 from main.data_preprocessing import load_data, DataSet
-from main.keras_models import create_model_four_conv, create_six_conv_model
+from main.keras_models import create_four_conv, create_six_conv
 
 LOGGER = logging.getLogger(__name__)
 
@@ -33,11 +17,17 @@ def lr_schedule(epoch):
     return lr * (0.1 ** int(epoch / 10))
 
 
-def train(data, model_id='six_conv', load_weights=True, batch_size=20, steps_per_epoch=4, n_epochs=10,
-          save_history=False):
-    assert batch_size < 0.5 * data.x_train.shape[0], 'batch_size is too large'
+def train_model(data_id='small', model_id='six_conv', load_weights=True, batch_size=20, steps_per_epoch=None, n_epochs=10,
+                save_history=False):
 
-    model = create_compiled_model(data=data, model_id=model_id, load_weights=load_weights)
+    # load data
+    data = load_data(data_id=data_id)
+
+    assert batch_size < 0.5 * data.x_train.shape[0], 'batch_size is too large'
+    if steps_per_epoch is None:
+        steps_per_epoch = int(data.x_train.shape[0] / batch_size)
+
+    model = get_compiled_model(data=data, model_id=model_id, load_weights=load_weights)
 
     # data generator
     data_generator = ImageDataGenerator(
@@ -71,12 +61,12 @@ def train(data, model_id='six_conv', load_weights=True, batch_size=20, steps_per
     return model, history
 
 
-def create_compiled_model(data, model_id, load_weights=False):
+def get_compiled_model(data, model_id, load_weights=False):
 
     if model_id == 'six_conv':
-        model, opt = create_six_conv_model(input_shape=data.x_train.shape[1:], n_classes=data.n_classes)
+        model, opt = create_six_conv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes)
     elif model_id == 'four_conv':
-        model, opt = create_model_four_conv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes)
+        model, opt = create_four_conv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes)
     else:
         raise ValueError('unknown model_id {}'.format(model_id))
 
@@ -96,10 +86,6 @@ def create_compiled_model(data, model_id, load_weights=False):
 
 
 if __name__ == '__main__':
-    model_id = 'six_conv'
-    data = load_data(data_id='small')
-    batch_size = 10
-    steps_per_epoch = int(data.x_train.shape[0] / batch_size)
-    model, history = train(data=data, model_id='six_conv', load_weights=True, batch_size=batch_size,
-                           steps_per_epoch=steps_per_epoch,
-                           n_epochs=20, save_history=True)
+    model, history = train_model(data_id='small', model_id='six_conv', load_weights=True, batch_size=10,
+                                 steps_per_epoch=3,
+                                 n_epochs=3, save_history=True)

@@ -7,13 +7,13 @@ import pandas as pd
 import pickle
 
 from main.data_preprocessing import load_data, DataSet
-from main.train import create_compiled_model
+from main.train import get_compiled_model
 from main.constants import NUM_2_CHARACTER, MODEL_PATH
 
 
 def print_classification_report(data_id, model_id):
     data = load_data(data_id=data_id)
-    model = create_compiled_model(data=data, model_id=model_id, load_weights=True)
+    model = get_compiled_model(data=data, model_id=model_id, load_weights=True)
     labels_num_test_hat = data.label_binarizer.inverse_transform(model.predict(data.x_test))
     print(sklearn.metrics.classification_report(y_true=data.labels_num_test, y_pred=labels_num_test_hat,
                                                 target_names=list(NUM_2_CHARACTER.values()), digits=4))
@@ -38,7 +38,7 @@ def plot_history(data_id, model_id):
 
 def plot_confusion_matrix(data_id, model_id):
     data = load_data(data_id=data_id)
-    model = create_compiled_model(data=data, model_id=model_id, load_weights=True)
+    model = get_compiled_model(data=data, model_id=model_id, load_weights=True)
     labels_num_test_hat = data.label_binarizer.inverse_transform(model.predict(data.x_test))
 
     # make figure

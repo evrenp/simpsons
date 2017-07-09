@@ -5,7 +5,7 @@ from keras.layers import Conv2D, MaxPooling2D
 from keras.optimizers import SGD
 
 
-def create_model_four_conv(input_shape, n_classes):
+def create_four_conv(input_shape, n_classes):
     """
     CNN Keras model with 4 convolutions.
     :param input_shape: input shape, generally X_train.shape[1:]
@@ -36,7 +36,7 @@ def create_model_four_conv(input_shape, n_classes):
     return model, opt
 
 
-def create_six_conv_model(input_shape, n_classes):
+def create_six_conv(input_shape, n_classes):
     """
     CNN Keras model with 6 convolutions.
     :param input_shape: input shape, generally X_train.shape[1:]
