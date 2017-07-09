@@ -5,7 +5,7 @@ from keras import backend
 from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import LearningRateScheduler, ModelCheckpoint
 
-from main.constants import MODEL_PATH
+from main.constants import MODEL_PATH, DATA_PATH
 from main.data_preprocessing import load_data, DataSet
 from main.keras_models import create_four_conv, create_six_conv
 
@@ -18,16 +18,16 @@ def lr_schedule(epoch):
 
 
 def train_model(data_id='small', model_id='six_conv', load_weights=True, batch_size=20, steps_per_epoch=None, n_epochs=10,
-                save_history=False):
+                save_history=False, data_path=DATA_PATH, model_path=MODEL_PATH):
 
     # load data
-    data = load_data(data_id=data_id)
+    data = load_data(data_id=data_id, data_path=data_path)
 
     assert batch_size < 0.5 * data.x_train.shape[0], 'batch_size is too large'
     if steps_per_epoch is None:
         steps_per_epoch = int(data.x_train.shape[0] / batch_size)
 
-    model = get_compiled_model(data=data, model_id=model_id, load_weights=load_weights)
+    model = get_compiled_model(data=data, model_id=model_id, load_weights=load_weights, model_path=model_path)
 
     # data generator
     data_generator = ImageDataGenerator(
@@ -42,26 +42,26 @@ def train_model(data_id='small', model_id='six_conv', load_weights=True, batch_s
         horizontal_flip=True,  # randomly flip images
         vertical_flip=False)  # randomly flip images
     data_generator.fit(data.x_train)
-    model_weights_path = os.path.join(MODEL_PATH, 'weights_{}_{}.hdf5'.format(data.id, model_id))
+    model_weights_path = os.path.join(model_path, 'weights_{}_{}.hdf5'.format(data.id, model_id))
     checkpoint = ModelCheckpoint(model_weights_path, monitor='val_acc', verbose=0, save_best_only=True, mode='max')
     callbacks_list = [LearningRateScheduler(lr_schedule), checkpoint]
-    with backend.get_session():
-        history = model.fit_generator(data_generator.flow(data.x_train, data.y_train,
-                                                          batch_size=batch_size),
-                                      steps_per_epoch=steps_per_epoch,
-                                      epochs=n_epochs,
-                                      validation_data=(data.x_test, data.y_test),
-                                      callbacks=callbacks_list)
+    # with backend.get_session():
+    history = model.fit_generator(data_generator.flow(data.x_train, data.y_train,
+                                                      batch_size=batch_size),
+                                  steps_per_epoch=steps_per_epoch,
+                                  epochs=n_epochs,
+                                  validation_data=(data.x_test, data.y_test),
+                                  callbacks=callbacks_list)
 
     if save_history:
         history_dict = {key: getattr(history, key) for key in ['history', 'epoch', 'params']}
-        with open(os.path.join(MODEL_PATH, 'history_{}_{}.pkl'.format(data.id, model_id)), "wb") as handle:
+        with open(os.path.join(model_path, 'history_{}_{}.pkl'.format(data.id, model_id)), "wb") as handle:
             pickle.dump(history_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     return model, history
 
 
-def get_compiled_model(data, model_id, load_weights=False):
+def get_compiled_model(data, model_id, load_weights=False, model_path=MODEL_PATH):
 
     if model_id == 'six_conv':
         model, opt = create_six_conv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes)
@@ -72,7 +72,7 @@ def get_compiled_model(data, model_id, load_weights=False):
 
     # load trained weights
     if load_weights:
-        model_weights_path = os.path.join(MODEL_PATH, 'weights_{}_{}.hdf5'.format(data.id, model_id))
+        model_weights_path = os.path.join(model_path, 'weights_{}_{}.hdf5'.format(data.id, model_id))
         if os.path.exists(model_weights_path):
             model.load_weights(model_weights_path)
         else:

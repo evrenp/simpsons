@@ -1,5 +1,5 @@
 import click
-from main.train import train_model
+from main.training import train_model
 from main.data_preprocessing import DataSet
 
 CONFIGS = {

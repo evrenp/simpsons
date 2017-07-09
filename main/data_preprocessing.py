@@ -35,7 +35,7 @@ def create_data(
         seed=0,
         data_id='some_data_id',
         save=True,
-        output_dir_path=DATA_PATH,
+        data_path=DATA_PATH,
 ):
     logging.basicConfig(
         level=logging.INFO,
@@ -71,7 +71,7 @@ def create_data(
            [n_created_classes, image_shape, data_id, label_binarizer]
     data = DataSet(*args)
     if save:
-        with open(os.path.join(output_dir_path, '{}_data.pkl'.format(data_id)), "wb") as handle:
+        with open(os.path.join(data_path, '{}_data.pkl'.format(data_id)), "wb") as handle:
             pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     return data
@@ -91,7 +91,7 @@ def load_data(data_id='small', data_path=DATA_PATH):
         data = pickle.load(f)
     return data
 
+
 if __name__ == '__main__':
-    data = create_data(n_classes=3, n_samples_per_class=20, test_size=0.4, seed=1, image_shape=(32, 32), data_id='small', save=False)
-
-
+    data = create_data(n_classes=3, n_samples_per_class=20, test_size=0.4, seed=1, image_shape=(32, 32),
+                       data_id='small', save=False)

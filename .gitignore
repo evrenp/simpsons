@@ -102,6 +102,7 @@ ENV/
 
 # ignore var
 var
+tests/var
 
 # pycharm files
 .idea
