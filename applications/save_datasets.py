@@ -27,7 +27,7 @@ CONFIGS = {
 }
 
 
-@click.command()
+@click.command(help='Available keys are [small, medium, big]')
 @click.argument('keys', nargs=-1)
 def main(keys):
     for key in keys:

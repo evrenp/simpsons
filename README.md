@@ -30,3 +30,6 @@
 
 ## Tests
 - Run functional tests with
+    ```bash
+    pytest -v -m functional
+    ```

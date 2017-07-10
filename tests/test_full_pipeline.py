@@ -15,24 +15,35 @@ for path in [TEST_VAR_PATH, TEST_DATA_PATH, TEST_FIGURE_PATH, TEST_MODEL_PATH]:
 
 
 @pytest.mark.functional
-def test_full_pipeline():
-
+def test_create_data():
     _ = create_data(n_classes=3, n_samples_per_class=20, test_size=0.4, seed=1, image_shape=(32, 32),
                     data_id='small', data_path=TEST_DATA_PATH, save=True)
 
-    data = load_data(data_id='small', data_path=TEST_DATA_PATH)
 
-    for model in [
-            SixConv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes, model_id='six_a', model_path=TEST_MODEL_PATH),
-            FourConv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes, model_id='four_a', model_path=TEST_MODEL_PATH),
-    ]:
+@pytest.fixture()
+def data():
+    return load_data(data_id='small', data_path=TEST_DATA_PATH)
 
-        history = model.train(data=data, batch_size=10, load_weights=True, save_history=True)
-        y_test_hat = model.predict(data.x_test)
 
-        monitor = ModelMonitor(data=data, model=model)
+@pytest.mark.functional
+@pytest.mark.parametrize('model', [
+    FourConv(input_shape=(32, 32, 3), n_classes=3, model_id='four_a',
+             model_path=TEST_MODEL_PATH),
+    SixConv(input_shape=(32, 32, 3), n_classes=3, model_id='six_a', model_path=TEST_MODEL_PATH),
+])
+def test_training_and_prediction(data, model):
+    history = model.train(data=data, batch_size=10, load_weights=True, save_history=True)
+    y_test_hat = model.predict(data.x_test)
 
-        monitor.print_classification_report()
-        _ = monitor.plot_confusion_matrix()
-        _ = monitor.plot_history()
 
+@pytest.mark.functional
+@pytest.mark.parametrize('model', [
+    FourConv(input_shape=(32, 32, 3), n_classes=3, model_id='four_a',
+             model_path=TEST_MODEL_PATH),
+    SixConv(input_shape=(32, 32, 3), n_classes=3, model_id='six_a', model_path=TEST_MODEL_PATH),
+])
+def test_monitoring(data, model):
+    monitor = ModelMonitor(data=data, model=model)
+    monitor.print_classification_report()
+    _ = monitor.plot_confusion_matrix()
+    _ = monitor.plot_history()
