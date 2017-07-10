@@ -1,3 +1,6 @@
+import os
+# suppress tf warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import click
 from main.data_preprocessing import load_data, DataSet
 from main.constants import DATA_PATH
@@ -14,7 +17,18 @@ CONFIGS = {
             'n_epochs': 2,
             'save_history': True,
         }
-    }
+    },
+    'six_conv_big': {
+        'model': SixConv(input_shape=(64, 64, 3), n_classes=10, model_id='six_conv_big'),
+        'train_args': {
+            'data': load_data(data_id='big', data_path=DATA_PATH),
+            'load_weights': False,
+            'batch_size': 32,
+            'steps_per_epoch': 25,
+            'n_epochs': 40,
+            'save_history': True,
+        }
+    },
 }
 
 
