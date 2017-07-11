@@ -8,8 +8,7 @@ import pickle
 
 from main.constants import NUM_2_CHARACTER, DATA_PATH
 
-from main.data_preprocessing import load_data, DataSet
-from main.keras_models import SixConv
+
 
 
 class ModelMonitor(object):
@@ -21,10 +20,12 @@ class ModelMonitor(object):
         self.data = data
         self.model = model
 
-    def print_classification_report(self):
-        labels_num_test_hat = self.data.label_binarizer.inverse_transform(self.model.predict(self.data.x_test))
-        print(sklearn.metrics.classification_report(y_true=self.data.labels_num_test, y_pred=labels_num_test_hat,
-                                                    target_names=list(NUM_2_CHARACTER.values()), digits=4))
+        # final prediction on test data
+        self.labels_num_test_hat = self.data.label_binarizer.inverse_transform(self.model.predict(self.data.x_test))
+
+    def print_classification_report(self, digits=2):
+        print(sklearn.metrics.classification_report(y_true=self.data.labels_num_test, y_pred=self.labels_num_test_hat,
+                                                    target_names=list(NUM_2_CHARACTER.values()), digits=digits))
 
     def plot_history(self):
         # load history
@@ -44,26 +45,35 @@ class ModelMonitor(object):
         return fig
 
     def plot_confusion_matrix(self):
-        labels_num_test_hat = self.data.label_binarizer.inverse_transform(self.model.predict(self.data.x_test))
-
-        # make figure
         fig, ax = plt.subplots(figsize=(8, 8))
         fig.subplots_adjust(bottom=0.3, left=0.3)
         classes = list(NUM_2_CHARACTER.values())
-        tick_marks = np.arange(len(classes))
-        plt.xticks(tick_marks, classes, rotation=90)
-        plt.yticks(tick_marks, classes)
-        ax.set_title('data_id={}, model_id={}'.format(self.data.id, self.model.model_id))
-        cax = ax.imshow(sklearn.metrics.confusion_matrix(self.data.labels_num_test, labels_num_test_hat),
+        ticks = np.arange(len(classes))
+        ax.set(
+            xlabel='Actual character',
+            ylabel='Predicted character',
+            xticks=ticks,
+            yticks=ticks,
+            xticklabels=classes,
+            yticklabels=classes,
+            title='data_id={}, model_id={}'.format(self.data.id, self.model.model_id),
+        )
+        plt.xticks(rotation=90)
+        cax = ax.imshow(sklearn.metrics.confusion_matrix(self.data.labels_num_test, self.labels_num_test_hat),
                         interpolation='nearest', cmap=plt.cm.coolwarm)
-        fig.colorbar(cax)
+        cbar = fig.colorbar(cax)
+        cbar.ax.set_ylabel('Number of events', rotation=90)
         return fig
 
 
 if __name__ == '__main__':
-    data = load_data(data_id='small', data_path=DATA_PATH)
+    from main.keras_models import FourConv, SixConv
+    from main.data_preprocessing import load_data, DataSet
 
-    model = SixConv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes, model_id='six_a')
+    data = load_data(data_id='big', data_path=DATA_PATH)
+
+    model = SixConv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes, model_id='six_conv_001')
+    # model = FourConv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes, model_id='four_conv_001')
 
     monitor = ModelMonitor(data=data, model=model)
 

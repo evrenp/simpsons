@@ -28,9 +28,8 @@ class FourConv(BaseModel):
         model.add(Dense(512))
         model.add(Activation('relu'))
         model.add(Dropout(0.5))
-        model.add(Dense(self.n_classes))
-        model.add(Activation('softmax'))
-        opt = keras.optimizers.rmsprop(lr=0.0001, decay=1e-6)
+        model.add(Dense(self.n_classes, activation='softmax'))
+        opt = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
         return model, opt
 
 
