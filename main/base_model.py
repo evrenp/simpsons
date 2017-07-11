@@ -25,6 +25,7 @@ class BaseModel(object):
         self.input_shape = input_shape
         self.n_classes = n_classes
         self.model_path = model_path
+        self.model_weights_path = os.path.join(self.model_path, 'weights_{}.hdf5'.format(self.model_id))
 
     def _get_keras_model_and_optimizer(self):
         return Model(), Optimizer()
@@ -50,12 +51,11 @@ class BaseModel(object):
 
         model, optimizer = self._get_keras_model_and_optimizer()
         if load_weights:
-            model_weights_path = os.path.join(self.model_path, 'weights_{}.hdf5'.format(self.model_id))
-            if os.path.exists(model_weights_path):
-                model.load_weights(model_weights_path)
-                print('Loading trained weights from file {}'.format(model_weights_path))
+            if os.path.exists(self.model_weights_path):
+                model.load_weights(self.model_weights_path)
+                print('Loading trained weights from file {}'.format(self.model_weights_path))
             else:
-                print('File {} with trained weights does not exist'.format(model_weights_path))
+                print('File {} with trained weights does not exist'.format(self.model_weights_path))
         model.compile(loss='categorical_crossentropy',
                       optimizer=optimizer,
                       metrics=['accuracy'])
@@ -73,8 +73,7 @@ class BaseModel(object):
             horizontal_flip=True,  # randomly flip images
             vertical_flip=False)  # randomly flip images
         data_generator.fit(data.x_train)
-        model_weights_path = os.path.join(self.model_path, 'weights_{}.hdf5'.format(self.model_id))
-        checkpoint = ModelCheckpoint(model_weights_path, monitor='val_acc', verbose=0, save_best_only=True, mode='max')
+        checkpoint = ModelCheckpoint(self.model_weights_path, monitor='val_acc', verbose=0, save_best_only=True, mode='max')
         callbacks_list = [LearningRateScheduler(self.lr_schedule), checkpoint]
         history = model.fit_generator(data_generator.flow(data.x_train, data.y_train,
                                                           batch_size=batch_size),
@@ -84,13 +83,16 @@ class BaseModel(object):
                                       callbacks=callbacks_list)
 
         if save_history:
-            history_dict = {key: getattr(history, key) for key in ['history', 'epoch', 'params']}
-            history_file_path = os.path.join(self.model_path, 'history_{}.pkl'.format(self.model_id))
-            with open(history_file_path, "wb") as handle:
-                pickle.dump(history_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
-            print('Saving history to file {}'.format(history_file_path))
+            self._save_history(history)
 
         return history
+
+    def _save_history(self, history):
+        history_dict = {key: getattr(history, key) for key in ['history', 'epoch', 'params']}
+        history_file_path = os.path.join(self.model_path, 'history_{}.pkl'.format(self.model_id))
+        with open(history_file_path, "wb") as handle:
+            pickle.dump(history_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        print('Saving history to file {}'.format(history_file_path))
 
     def predict(
             self,
@@ -101,12 +103,11 @@ class BaseModel(object):
         assert self.input_shape == x.shape[1:]
 
         model, optimizer = self._get_keras_model_and_optimizer()
-        model_weights_path = os.path.join(self.model_path, 'weights_{}.hdf5'.format(self.model_id))
-        if os.path.exists(model_weights_path):
-            model.load_weights(model_weights_path)
-            print('Loading trained weights from file {}'.format(model_weights_path))
+        if os.path.exists(self.model_weights_path):
+            model.load_weights(self.model_weights_path)
+            print('Loading trained weights from file {}'.format(self.model_weights_path))
         else:
-            raise ValueError('File {} with trained weights does not exist'.format(model_weights_path))
+            raise ValueError('File {} with trained weights does not exist'.format(self.model_weights_path))
         model.compile(loss='categorical_crossentropy',
                       optimizer=optimizer,
                       metrics=['accuracy'])

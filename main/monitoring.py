@@ -68,12 +68,15 @@ class ModelMonitor(object):
 
 if __name__ == '__main__':
     from main.keras_models import FourConv, SixConv
+    from main.vgg16_model import Vgg16
     from main.data_preprocessing import load_data, DataSet
 
-    data = load_data(data_id='big', data_path=DATA_PATH)
+    # data = load_data(data_id='big', data_path=DATA_PATH)
+    data = load_data(data_id='medium', data_path=DATA_PATH)
 
-    model = SixConv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes, model_id='six_conv_001')
+    # model = SixConv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes, model_id='six_conv_001')
     # model = FourConv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes, model_id='four_conv_001')
+    model = Vgg16(input_shape=data.x_train.shape[1:], n_classes=data.n_classes, model_id='vgg_001')
 
     monitor = ModelMonitor(data=data, model=model)
 
