@@ -9,8 +9,6 @@ import pickle
 from main.constants import NUM_2_CHARACTER, DATA_PATH
 
 
-
-
 class ModelMonitor(object):
     def __init__(
             self,
@@ -23,9 +21,12 @@ class ModelMonitor(object):
         # final prediction on test data
         self.labels_num_test_hat = self.data.label_binarizer.inverse_transform(self.model.predict(self.data.x_test))
 
+        # get class_labels for plotting
+        self.class_labels = [NUM_2_CHARACTER[i] for i in self.data.label_binarizer.classes_]
+
     def print_classification_report(self, digits=2):
         print(sklearn.metrics.classification_report(y_true=self.data.labels_num_test, y_pred=self.labels_num_test_hat,
-                                                    target_names=list(NUM_2_CHARACTER.values()), digits=digits))
+                                                    target_names=self.class_labels, digits=digits))
 
     def plot_history(self):
         # load history
@@ -41,21 +42,20 @@ class ModelMonitor(object):
         fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(12, 6))
         df[['loss', 'validation loss']].plot(ax=axes[0])
         df[['accuracy', 'validation accuracy']].plot(ax=axes[1])
-        fig.suptitle(self.model.model_id, fontsize=12)
+        fig.suptitle('data_id={}, model_id={}'.format(self.data.id, self.model.model_id), fontsize=12)
         return fig
 
     def plot_confusion_matrix(self):
         fig, ax = plt.subplots(figsize=(8, 8))
         fig.subplots_adjust(bottom=0.3, left=0.3)
-        classes = list(NUM_2_CHARACTER.values())
-        ticks = np.arange(len(classes))
+        ticks = np.arange(len(self.class_labels))
         ax.set(
             xlabel='Actual character',
             ylabel='Predicted character',
             xticks=ticks,
             yticks=ticks,
-            xticklabels=classes,
-            yticklabels=classes,
+            xticklabels=self.class_labels,
+            yticklabels=self.class_labels,
             title='data_id={}, model_id={}'.format(self.data.id, self.model.model_id),
         )
         plt.xticks(rotation=90)
