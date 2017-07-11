@@ -34,6 +34,8 @@
     python applications/train.py <config_key>
     ```
 
+- Results of training and other types of analysis are collected in `notebooks`.
+
 ## Tests
 - Run functional tests with
     ```bash
