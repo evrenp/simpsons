@@ -47,3 +47,4 @@ def test_monitoring(data, model):
     monitor.print_classification_report()
     _ = monitor.plot_confusion_matrix()
     _ = monitor.plot_history()
+    _ = monitor.plot_test_image_with_prediction()

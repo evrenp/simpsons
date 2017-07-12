@@ -25,7 +25,7 @@ class Vgg16(BaseModel):
         model.add(Flatten(input_shape=features_shape))
         model.add(Dense(256, activation='relu'))
         model.add(Dropout(0.5))
-        model.add(Dense(10, activation='sigmoid'))
+        model.add(Dense(self.n_classes, activation='sigmoid'))
         model.compile(optimizer='rmsprop',
                       loss='binary_crossentropy', metrics=['accuracy'])
         return model
