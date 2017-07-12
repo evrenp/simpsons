@@ -108,6 +108,8 @@ class BaseModel(object):
             print('Loading trained weights from file {}'.format(self.model_weights_path))
         else:
             raise ValueError('File {} with trained weights does not exist'.format(self.model_weights_path))
+
+        # TODO: remove compile here
         model.compile(loss='categorical_crossentropy',
                       optimizer=optimizer,
                       metrics=['accuracy'])

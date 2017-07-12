@@ -1,10 +1,12 @@
 import os
+
 # suppress tf warnings
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import click
 from main.data_preprocessing import load_data, DataSet
 from main.constants import DATA_PATH
 from main.keras_models import FourConv, SixConv
+from main.vgg16_model import Vgg16
 
 CONFIGS = {
     'six_conv_000': {
@@ -36,6 +38,16 @@ CONFIGS = {
             'load_weights': False,
             'batch_size': 32,
             'steps_per_epoch': 200,
+            'n_epochs': 50,
+            'save_history': True,
+        }
+    },
+    'vgg_001': {
+        'model': Vgg16(input_shape=(64, 64, 3), n_classes=10, model_id='vgg_001'),
+        'train_args': {
+            'data': load_data(data_id='big', data_path=DATA_PATH),
+            'load_weights': False,
+            'batch_size': 32,
             'n_epochs': 50,
             'save_history': True,
         }
