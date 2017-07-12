@@ -25,9 +25,12 @@ class Vgg16(BaseModel):
         model.add(Flatten(input_shape=features_shape))
         model.add(Dense(256, activation='relu'))
         model.add(Dropout(0.5))
-        model.add(Dense(self.n_classes, activation='sigmoid'))
+        # model.add(Dense(self.n_classes, activation='sigmoid'))
+        # model.compile(optimizer='rmsprop',
+        #               loss='binary_crossentropy', metrics=['accuracy'])model.add(Dense(self.n_classes, activation='sigmoid'))
+        model.add(Dense(self.n_classes, activation='softmax'))
         model.compile(optimizer='rmsprop',
-                      loss='binary_crossentropy', metrics=['accuracy'])
+                      loss='categorical_crossentropy', metrics=['accuracy'])
         return model
 
     def _train_top_model(self, data, n_epochs, batch_size, save_history):
