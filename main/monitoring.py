@@ -13,18 +13,20 @@ class ModelMonitor(object):
     def __init__(
             self,
             data,
-            model,
+            model
     ):
         self.data = data
         self.model = model
 
         # final prediction on test data
-        self.labels_num_test_hat = self.data.label_binarizer.inverse_transform(self.model.predict(self.data.x_test))
+        self.labels_num_test_hat = None
 
         # get class_labels for plotting
         self.class_labels = [NUM_2_CHARACTER[i] for i in self.data.label_binarizer.classes_]
 
     def print_classification_report(self, digits=2):
+        if self.labels_num_test_hat is None:
+            self.labels_num_test_hat = self.data.label_binarizer.inverse_transform(self.model.predict(self.data.x_test))
         print(sklearn.metrics.classification_report(y_true=self.data.labels_num_test, y_pred=self.labels_num_test_hat,
                                                     target_names=self.class_labels, digits=digits))
 
@@ -46,6 +48,8 @@ class ModelMonitor(object):
         return fig
 
     def plot_confusion_matrix(self):
+        if self.labels_num_test_hat is None:
+            self.labels_num_test_hat = self.data.label_binarizer.inverse_transform(self.model.predict(self.data.x_test))
         fig, ax = plt.subplots(figsize=(8, 8))
         fig.subplots_adjust(bottom=0.3, left=0.3)
         ticks = np.arange(len(self.class_labels))
@@ -65,13 +69,31 @@ class ModelMonitor(object):
         cbar.ax.set_ylabel('Number of events', rotation=90)
         return fig
 
+    def plot_test_image_with_prediction(self, sample_idx=None, n_top_probabilities=3):
+        if sample_idx is None:
+            sample_idx = np.random.randint(0, self.data.x_test.shape[0], 1)[0]
+        y_test_hat = self.model.predict(self.data.x_test[[sample_idx], :, :, :])[0, :]
+
+        # get top probabilities and make title
+        probabilities = y_test_hat / y_test_hat.sum()
+        top_idxs = probabilities.argsort()[-n_top_probabilities:][::-1]
+        title = ['P({}) = {:.2f}'.format(NUM_2_CHARACTER[self.data.label_binarizer.classes_[idx]], probabilities[idx])
+                 for idx in top_idxs]
+        title = '\n'.join(title) + '\nActual = {}'.format(self.data.labels_char_test[sample_idx])
+
+        # make figure
+        fig, ax = plt.subplots(figsize=(8, 8))
+        ax.imshow(self.data.x_test[sample_idx, :, :, :])
+        plt.axis("off")
+        plt.title(title)
+        return fig
+
 
 if __name__ == '__main__':
     from main.keras_models import FourConv, SixConv
     from main.vgg16_model import Vgg16
     from main.data_preprocessing import load_data, DataSet
 
-    # data = load_data(data_id='big', data_path=DATA_PATH)
     data = load_data(data_id='big', data_path=DATA_PATH)
 
     # model = SixConv(input_shape=data.x_train.shape[1:], n_classes=data.n_classes, model_id='six_conv_001')
@@ -84,4 +106,6 @@ if __name__ == '__main__':
     _ = monitor.plot_confusion_matrix()
     plt.show()
     _ = monitor.plot_history()
+    plt.show()
+    _ = monitor.plot_test_image_with_prediction()
     plt.show()
