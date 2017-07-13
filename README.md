@@ -55,4 +55,5 @@
 - Fine-tune the VGG16 model.
     - Re-train the last convolutional block.
     - Re-size the input to the original image size.
-    - Use image-augmentation
+    - Try image-augmentation.
+    - Try different optimizers, e.g. Adam.
