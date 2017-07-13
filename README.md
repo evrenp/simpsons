@@ -36,7 +36,7 @@
     ```
 
 - Results of training and other types of analysis are collected in `notebooks`.
-    - Checkout `notebooks/data_overview.ipynb` for a quick overview of how to create data.
+    - Checkout `notebooks/data_overview.ipynb` for a quick overview on how to create data.
     - Checkout `notebooks/training_results.ipynb` for current results on training.
     - Checkout `notebooks/prediction_demo.ipynb` for a brief demo of prediction performance on test data.
 
