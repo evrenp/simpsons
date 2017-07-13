@@ -1,13 +1,13 @@
 # Simpsons Character Recognition
 - This repo is about character recognition for simpson image data with different deep learning models.
 - The simpsons image data can be found on kaggle:  https://www.kaggle.com/alexattia/the-simpsons-characters-dataset
-- This main code of this repo is a refactored version of https://github.com/alexattia/SimpsonRecognition
-- The following refactorings have been made:
-    - Data comes as in-memory toy-data at three different scales: small, medium, big. small data is used for development and functional tests.
-    - Model class provides interface for defining and running convolutional network models.
-    - Monitor class provides interface for defining and running a model monitor. 
-    - Functional tests provide quick sanitiy checks for development.
-    - Installation and maintainability is improved via requirements and setup scripts.
+- This code is partially based on https://github.com/alexattia/SimpsonRecognition
+- The following changes and extensions have been made:
+    - Data is always treated as in-memory flexible toy data at custom shape and scale.
+    - The `BaseModel` class provides an interface for any type of convolutional network model in the context of simpsons character recognition data. 
+    - The `ModelMonitor` class provides an interface for monitoring any `BaseModel` instance.
+    - Functional tests under `pytest` provide quick sanitiy checks for development.
+    - Installation is improved via requirements and setup scripts.
 
 ## Installation
 - Download simpson character images from https://www.kaggle.com/alexattia/the-simpsons-characters-dataset, unzip and move to
