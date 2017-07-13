@@ -40,6 +40,8 @@
     - Checkout `notebooks/training_results.ipynb` for current results on training.
     - Checkout `notebooks/prediction_demo.ipynb` for a brief demo of prediction performance on test data.
 
+- Some weights from training the `FourConv`, `SixConv` and `Vgg16` models are stored in `final_weights`. These only yield test prediction accuracy on ten-class data of up to 88% though.   
+
 ## Functional testing
 - Run functional tests with
     ```bash
