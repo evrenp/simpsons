@@ -49,6 +49,10 @@
     ```
     
 ## Next development steps
-- Run hyper-parameter search on cluster. 
+- Set up hyper-parameter search procedure on cluster.
 - Refactor four-conv and six-conv models into generalized convolutional model.
-- Fine-tune the full VGG16 model.
+- Add functional test for VGG16 model.
+- Fine-tune the VGG16 model.
+    - Re-train the last convolutional block.
+    - Re-size the input to the original image size.
+    - Use image-augmentation
